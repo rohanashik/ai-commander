@@ -177,3 +177,5 @@ echo -e "     ${BLUE}?? find all python files modified today${NC}"
 echo ""
 echo "The command will appear in your terminal - press Enter to run it!"
 echo ""
+echo "Reloading shell..."
+exec $SHELL
