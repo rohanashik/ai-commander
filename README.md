@@ -17,6 +17,21 @@ Convert natural language to terminal commands using AI.
 
 ## Installation
 
+
+### One-Line Install (Recommended)
+```bash
+curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/install.sh | bash
+```
+
+**What this does:**
+- ✅ Checks Python version
+- ✅ Downloads and sets up AI Commander
+- ✅ Guides you through API key setup
+- ✅ Configures your shell automatically
+- ✅ Ready to use in 30 seconds
+
+### Manual Setup
+
 If you prefer to set things up manually instead of using `install.sh`, add the following to your `~/.zshrc` (replace `/path/to/ai-commander` with the actual path):
 
 ```zsh
@@ -54,6 +69,16 @@ Simply type `??` followed by your natural language request:
 ```
 
 The command will appear in your terminal buffer. Press Enter to execute it, or edit it first if needed.
+
+## Uninstall
+
+To completely remove AI Commander:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.sh | bash
+```
+
+This will remove the installation directory (`~/.ai-commander`) and clean up shell functions from your rc files.
 
 ## How It Works
 
