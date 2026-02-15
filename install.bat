@@ -74,8 +74,8 @@ del "%TEMP%\ai-commander.tar.gz"
 echo Setting up Python environment...
 %PYTHON% -m venv "%INSTALL_DIR%\venv"
 call "%INSTALL_DIR%\venv\Scripts\activate.bat"
-pip install -q --upgrade pip
-pip install -q -r "%INSTALL_DIR%\requirements.txt"
+call pip install -q --upgrade pip
+call pip install -q -r "%INSTALL_DIR%\requirements.txt"
 call deactivate
 
 :: API Key setup
