@@ -1,13 +1,13 @@
-# TerminalAI
+# AI Commander
 
 Convert natural language to terminal commands using AI.
 
 ## Features
 
-- 🤖 Natural language to terminal command conversion
-- 🎯 Context-aware (detects OS, shell, current directory)
-- ⚡ Fast command generation with Gemini 2.5 Flash
-- 🔄 Commands appear in your shell buffer ready to execute
+- Natural language to terminal command conversion
+- Context-aware (detects OS, shell, current directory)
+- Fast command generation with Gemini 2.5 Flash
+- Commands appear in your shell buffer ready to execute
 
 ## Prerequisites
 
@@ -17,14 +17,14 @@ Convert natural language to terminal commands using AI.
 
 ## Installation
 
-If you prefer to set things up manually instead of using `install.sh`, add the following to your `~/.zshrc` (replace `/path/to/TerminalAI` with the actual path):
+If you prefer to set things up manually instead of using `install.sh`, add the following to your `~/.zshrc` (replace `/path/to/ai-commander` with the actual path):
 
 ```zsh
-# TerminalAI - Natural language terminal commands
+# AI Commander - Natural language terminal commands
 setopt nonomatch
 
 function '??' {
-    cmd=$(/path/to/TerminalAI/.venv/bin/python /path/to/TerminalAI/ai.py "$@")
+    cmd=$(/path/to/ai-commander/.venv/bin/python /path/to/ai-commander/ai.py "$@")
     print -z "$cmd"
 }
 ```
@@ -74,4 +74,3 @@ Your API key should be stored as an environment variable, never hardcoded. The i
 **API Error**
 - Verify your `GEMINI_API_KEY` is set: `echo $GEMINI_API_KEY`
 - Check your API key is valid at [Google AI Studio](https://aistudio.google.com/)
-
