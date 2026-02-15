@@ -159,6 +159,7 @@ else
     echo "" >> "$SHELL_RC"
     echo "# AI Commander - Natural language terminal commands" >> "$SHELL_RC"
     echo "$SHELL_FUNCTION" >> "$SHELL_RC"
+    echo "# AI Commander - END" >> "$SHELL_RC"
     echo -e "${GREEN}✓ Added to $SHELL_RC${NC}"
 fi
 

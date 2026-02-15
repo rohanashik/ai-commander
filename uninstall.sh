@@ -30,8 +30,16 @@ echo "Removing shell integration..."
 
 for RC_FILE in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile"; do
     if [ -f "$RC_FILE" ] && grep -q "AI Commander" "$RC_FILE" 2>/dev/null; then
-        # Remove the comment and function block
-        sed -i.bak '/# AI Commander - Natural language terminal commands/,/^}/d' "$RC_FILE"
+        # Remove the full block between start/end markers (new installs)
+        if grep -q "# AI Commander - END" "$RC_FILE" 2>/dev/null; then
+            sed -i.bak '/# AI Commander - Natural language terminal commands/,/# AI Commander - END/d' "$RC_FILE"
+        else
+            # Fallback for old installs without end marker: remove known lines
+            sed -i.bak '/# AI Commander - Natural language terminal commands/d' "$RC_FILE"
+            sed -i.bak '/setopt nonomatch/d' "$RC_FILE"
+            sed -i.bak '/^function ?? {/,/^}/d' "$RC_FILE"
+            sed -i.bak '/^function ai {/,/^}/d' "$RC_FILE"
+        fi
         # Clean up any trailing blank lines left behind
         sed -i.bak -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$RC_FILE"
         rm -f "${RC_FILE}.bak"
