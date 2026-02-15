@@ -7,11 +7,15 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}"
-echo "┌────────────────────────────────────┐"
-echo "│   🤖 AI Commander Uninstaller     │"
-echo "└────────────────────────────────────┘"
+echo -e "${RED}"
+echo "  ▄▖▄▖  ▄▖             ▌    "
+echo "  ▌▌▐   ▌ ▛▌▛▛▌▛▛▌▀▌▛▌▛▌█▌▛▘"
+echo "  ▛▌▟▖  ▙▖▙▌▌▌▌▌▌▌█▌▌▌▙▌▙▖▌ "
 echo -e "${NC}"
+echo -e "  ${BLUE}╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸${NC}"
+echo -e "  ${RED}        ⚠  UNINSTALLER  ⚠${NC}"
+echo -e "  ${BLUE}╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸${NC}"
+echo ""
 
 INSTALL_DIR="$HOME/.ai-commander"
 

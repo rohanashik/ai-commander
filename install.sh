@@ -8,11 +8,14 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}"
-echo "┌────────────────────────────────────┐"
-echo "│   🤖 AI Commander Installer       │"
-echo "│   Natural Language → Commands     │"
-echo "└────────────────────────────────────┘"
+echo "  ▄▖▄▖  ▄▖             ▌    "
+echo "  ▌▌▐   ▌ ▛▌▛▛▌▛▛▌▀▌▛▌▛▌█▌▛▘"
+echo "  ▛▌▟▖  ▙▖▙▌▌▌▌▌▌▌█▌▌▌▙▌▙▖▌ "
 echo -e "${NC}"
+echo -e "  ${BLUE}╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸${NC}"
+echo -e "  ${GREEN}         ⚡  INSTALLER  ⚡${NC}"
+echo -e "  ${BLUE}╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸${NC}"
+echo ""
 
 # Check Python
 echo "Checking Python..."
