@@ -6,10 +6,46 @@ import time
 from dotenv import load_dotenv
 from litellm import completion
 import litellm
+import urllib.request
+import json
+from packaging import version
 
 load_dotenv()
 
 litellm.suppress_debug_info = True
+
+__version__ = "1.0.0"
+GITHUB_REPO = "rohanashik/ai-commander"
+
+def check_for_updates(silent=False):
+    """Check GitHub for new releases"""
+    try:
+        url = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
+        req = urllib.request.Request(url)
+        req.add_header('User-Agent', 'ai-commander')
+        
+        with urllib.request.urlopen(req, timeout=2) as response:
+            data = json.loads(response.read().decode())
+            latest_version = data['tag_name'].lstrip('v')
+            
+            if version.parse(latest_version) > version.parse(__version__):
+                YELLOW = '\033[1;33m'
+                GREEN = '\033[0;32m'
+                NC = '\033[0m'
+                print(f"\n{YELLOW}┌────────────────────────────────────────────┐{NC}", file=sys.stderr)
+                print(f"{YELLOW}│  📦 Update Available!                     │{NC}", file=sys.stderr)
+                print(f"{YELLOW}│  Current: v{__version__:<10s} Latest: v{latest_version:<10s} │{NC}", file=sys.stderr)
+                print(f"{YELLOW}└────────────────────────────────────────────┘{NC}", file=sys.stderr)
+                print(f"{GREEN}Run this to update:{NC} curl -fsSL https://raw.githubusercontent.com/{GITHUB_REPO}/main/install.sh | bash\n", file=sys.stderr)
+                return True
+            elif not silent:
+                print(f"✓ You're running the latest version (v{__version__})\n")
+                return False
+    except Exception:
+        # Silently fail if update check fails (offline, timeout, etc.)
+        if not silent:
+            print("⚠ Could not check for updates. Please check your internet connection.\n")
+    return False
 
 def show_loader(stop_event):
     """Display an animated spinner while loading"""
@@ -64,10 +100,12 @@ def config_menu():
 
     print(f"\n{BLUE}┌────────────────────────────────────┐{NC}")
     print(f"{BLUE}│   🤖 AI Commander Settings        │{NC}")
-    print(f"{BLUE}└────────────────────────────────────┘{NC}\n")
+    print(f"{BLUE}└────────────────────────────────────┘{NC}")
+    print(f"  Version: v{__version__}\n")
 
     print(f"  {BLUE}1.{NC} Update API Key")
-    print(f"  {BLUE}2.{NC} Uninstall")
+    print(f"  {BLUE}2.{NC} Check for Updates")
+    print(f"  {BLUE}3.{NC} Uninstall")
     print(f"  {BLUE}0.{NC} Cancel\n")
 
     try:
@@ -101,6 +139,10 @@ def config_menu():
         print(f"\n  {GREEN}✓ API key updated successfully.{NC}\n")
 
     elif choice == '2':
+        print()
+        check_for_updates(silent=False)
+
+    elif choice == '3':
         try:
             confirm = input(f"\n  {RED}Are you sure you want to uninstall AI Commander? (y/N):{NC} ").strip().lower()
         except (KeyboardInterrupt, EOFError):
@@ -128,6 +170,9 @@ def main():
     if not os.environ.get("GEMINI_API_KEY"):
         print("echo 'Error: GEMINI_API_KEY environment variable not set'", file=sys.stderr)
         sys.exit(1)
+
+    # Check for updates silently (non-blocking)
+    check_for_updates(silent=True)
 
     # Get everything after '??'
     user_input = ' '.join(sys.argv[1:])
