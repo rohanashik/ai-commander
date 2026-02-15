@@ -7,23 +7,31 @@ Convert natural language to terminal commands using AI.
 - Natural language to terminal command conversion
 - Context-aware (detects OS, shell, current directory)
 - Fast command generation with Gemini 2.5 Flash
-- Commands appear in your shell buffer ready to execute
+- Cross-platform: macOS, Linux, and Windows
+- Commands appear in your shell buffer ready to execute (macOS/Linux) or prompt for confirmation (Windows)
 
 ## Prerequisites
 
-- macOS
+- macOS, Linux, or Windows 10+
 - Python 3.10 or higher
 - A Google Gemini API key ([Get one here](https://aistudio.google.com/))
 
 ## Installation
 
+### macOS / Linux
 
-### One-Line Install (Recommended)
 ```bash
 curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/install.sh | bash
 ```
 
-**What this does:**
+### Windows (cmd)
+
+Download and run the installer in Command Prompt:
+```cmd
+curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/install.bat -o install.bat && install.bat
+```
+
+**What the installer does:**
 - ✅ Checks Python version
 - ✅ Downloads and sets up AI Commander
 - ✅ Guides you through API key setup
@@ -32,7 +40,10 @@ curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/instal
 
 ### Manual Setup
 
-If you prefer to set things up manually instead of using `install.sh`, add the following to your `~/.zshrc` (replace `/path/to/ai-commander` with the actual path):
+<details>
+<summary>macOS / Linux (zsh)</summary>
+
+Add the following to your `~/.zshrc` (replace `/path/to/ai-commander` with the actual path):
 
 ```zsh
 # AI Commander - Natural language terminal commands
@@ -48,6 +59,23 @@ Then reload your shell:
 ```bash
 source ~/.zshrc
 ```
+</details>
+
+<details>
+<summary>Windows (cmd)</summary>
+
+Create a file at `%APPDATA%\ai-commander\cmd_init.bat`:
+```cmd
+@echo off
+doskey ??="%APPDATA%\ai-commander\venv\Scripts\python.exe" "%APPDATA%\ai-commander\ai.py" --execute $*
+doskey ai="%APPDATA%\ai-commander\venv\Scripts\python.exe" "%APPDATA%\ai-commander\ai.py" --execute $*
+```
+
+Then register it to run on every cmd session:
+```cmd
+reg add "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d "\"%APPDATA%\ai-commander\cmd_init.bat\"" /f
+```
+</details>
 
 
 ## Usage
@@ -68,7 +96,14 @@ Simply type `??` followed by your natural language request:
 # Generates: lsof -i :8080
 ```
 
-The command will appear in your terminal buffer. Press Enter to execute it, or edit it first if needed.
+**macOS / Linux:** The command appears in your shell buffer — press Enter to execute, or edit it first.
+
+**Windows (cmd):** The command is displayed with a confirmation prompt:
+```
+> dir /a /b
+Run this command? (Y/n):
+```
+Press Enter or type `y` to run, or `n` to cancel.
 
 ## Configuration
 
@@ -80,20 +115,25 @@ ai --config
 
 ## Uninstall
 
-To completely remove AI Commander:
-
+**macOS / Linux:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.sh | bash
 ```
 
-This will remove the installation directory (`~/.ai-commander`) and clean up shell functions from your rc files.
+**Windows (cmd):**
+```cmd
+curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.bat -o uninstall.bat && uninstall.bat
+```
+
+This removes the installation directory and cleans up shell integration (rc files on macOS/Linux, AutoRun registry on Windows).
 
 ## How It Works
 
 1. You type a natural language request after `??`
 2. The script sends your request + system context to Gemini AI
 3. AI generates the appropriate terminal command
-4. Command appears in your shell ready to execute
+4. **macOS/Linux:** Command appears in your shell buffer ready to execute
+5. **Windows:** Command is shown with a Y/n confirmation prompt, then executed
 
 ## Security Note
 
@@ -102,8 +142,13 @@ Your API key should be stored as an environment variable, never hardcoded. The i
 ## Troubleshooting
 
 **Command not found: ??**
-- Make sure you've reloaded your shell: `source ~/.zshrc`
+- macOS/Linux: Make sure you've reloaded your shell: `source ~/.zshrc`
+- Windows: Open a new cmd window after installation
 
 **API Error**
-- Verify your `GEMINI_API_KEY` is set: `echo $GEMINI_API_KEY`
+- Verify your `GEMINI_API_KEY` is set: `echo $GEMINI_API_KEY` (or `set GEMINI_API_KEY` on Windows)
 - Check your API key is valid at [Google AI Studio](https://aistudio.google.com/)
+
+**Windows: `??` or `ai` not recognized**
+- Ensure the AutoRun registry key is set: `reg query "HKCU\Software\Microsoft\Command Processor" /v AutoRun`
+- Open a new cmd window (macros don't apply to already-open sessions)

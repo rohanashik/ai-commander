@@ -36,7 +36,10 @@ def check_for_updates(silent=False):
                 print(f"{YELLOW}│  📦 Update Available!                     │{NC}", file=sys.stderr)
                 print(f"{YELLOW}│  Current: v{__version__:<10s} Latest: v{latest_version:<10s} │{NC}", file=sys.stderr)
                 print(f"{YELLOW}└────────────────────────────────────────────┘{NC}", file=sys.stderr)
-                print(f"{GREEN}Run this to update:{NC} curl -fsSL https://raw.githubusercontent.com/{GITHUB_REPO}/main/install.sh | bash\n", file=sys.stderr)
+                if os.name == 'nt':
+                    print(f"{GREEN}Run this to update:{NC} powershell -Command \"irm https://raw.githubusercontent.com/{GITHUB_REPO}/main/install.bat -OutFile install.bat; .\\install.bat\"\n", file=sys.stderr)
+                else:
+                    print(f"{GREEN}Run this to update:{NC} curl -fsSL https://raw.githubusercontent.com/{GITHUB_REPO}/main/install.sh | bash\n", file=sys.stderr)
                 return True
             elif not silent:
                 print(f"✓ You're running the latest version (v{__version__})\n")
@@ -59,6 +62,15 @@ def show_loader(stop_event):
     sys.stderr.write('\r' + ' ' * 50 + '\r')  # Clear the line
     sys.stderr.flush()
 
+def get_shell():
+    """Detect the current shell, cross-platform"""
+    if os.name == 'nt':
+        # Windows: check if running in PowerShell or cmd
+        if os.environ.get('PSModulePath'):
+            return 'powershell'
+        return 'cmd'
+    return os.environ.get('SHELL', 'unknown').split('/')[-1]
+
 def get_context():
     """Gather system context for better command generation"""
     # Get files and folders in current directory
@@ -78,10 +90,10 @@ def get_context():
     except Exception:
         files = []
         folders = []
-    
+
     return {
-        'os': sys.platform,  # Darwin, Linux, Windows
-        'shell': os.environ.get('SHELL', 'unknown').split('/')[-1],  # zsh, bash, etc
+        'os': sys.platform,  # darwin, linux, win32
+        'shell': get_shell(),  # zsh, bash, cmd, powershell
         'cwd': os.getcwd(),  # current directory
         'home': os.path.expanduser('~'),  # home directory
         'files': files,  # files in current directory
@@ -157,7 +169,15 @@ def config_menu():
         if confirm == 'y':
             import subprocess
             print()
-            subprocess.run(['bash', '-c', 'curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.sh | bash'])
+            if os.name == 'nt':
+                # Windows: run the batch uninstaller
+                uninstall_bat = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uninstall.bat')
+                if os.path.exists(uninstall_bat):
+                    subprocess.run([uninstall_bat])
+                else:
+                    print("Uninstall script not found. Please delete the installation folder manually.")
+            else:
+                subprocess.run(['bash', '-c', 'curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.sh | bash'])
         else:
             print(f"\n  Uninstall cancelled.")
 
@@ -166,10 +186,37 @@ def config_menu():
 
     sys.exit(0)
 
+def execute_with_confirm(command):
+    """Print command and ask for confirmation before executing (used on Windows cmd)"""
+    import subprocess as sp
+    BLUE = '\033[0;34m'
+    GREEN = '\033[0;32m'
+    RED = '\033[0;31m'
+    NC = '\033[0m'
+
+    print(f"\n{BLUE}>{NC} {command}\n")
+    try:
+        choice = input(f"Run this command? ({GREEN}Y{NC}/{RED}n{NC}): ").strip().lower()
+    except (KeyboardInterrupt, EOFError):
+        print("\nCancelled.")
+        sys.exit(0)
+
+    if choice in ('', 'y', 'yes'):
+        sp.run(command, shell=True)
+    else:
+        print("Cancelled.")
+
 def main():
     # Handle --config flag
     if len(sys.argv) >= 2 and sys.argv[1] == '--config':
         config_menu()
+
+    # Handle --execute flag (Windows cmd mode: confirm then run)
+    execute_mode = False
+    args = sys.argv[1:]
+    if '--execute' in args:
+        execute_mode = True
+        args = [a for a in args if a != '--execute']
 
     # Check for Gemini API key
     if not os.environ.get("GEMINI_API_KEY"):
@@ -180,7 +227,7 @@ def main():
     check_for_updates(silent=True)
 
     # Get everything after '??'
-    user_input = ' '.join(sys.argv[1:])
+    user_input = ' '.join(args)
     
     # Get system context
     ctx = get_context()
@@ -238,8 +285,11 @@ def main():
         stop_loader.set()
         loader_thread.join()
 
-        # Print the command
-        print(command)
+        # Output the command
+        if execute_mode:
+            execute_with_confirm(command)
+        else:
+            print(command)
     except litellm.RateLimitError:
         stop_loader.set()
         loader_thread.join()
