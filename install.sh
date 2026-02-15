@@ -32,7 +32,7 @@ echo "Installing to: $INSTALL_DIR"
 
 # Clean install if exists
 if [ -d "$INSTALL_DIR" ]; then
-    read -p "Existing installation found. Reinstall? (y/n) " -n 1 -r
+    read -p "Existing installation found. Reinstall? (y/n) " -n 1 -r < /dev/tty
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         rm -rf "$INSTALL_DIR"
@@ -67,7 +67,7 @@ echo "Get one here: https://aistudio.google.com/app/apikey"
 echo ""
 
 if [ -f ".env" ]; then
-    read -p "API key already configured. Update? (y/n) " -n 1 -r
+    read -p "API key already configured. Update? (y/n) " -n 1 -r < /dev/tty
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         API_CONFIGURED=true
@@ -75,7 +75,7 @@ if [ -f ".env" ]; then
 fi
 
 if [ -z "$API_CONFIGURED" ]; then
-    read -p "Enter your Gemini API key: " API_KEY
+    read -p "Enter your Gemini API key: " API_KEY < /dev/tty
     if [ -z "$API_KEY" ]; then
         echo -e "${RED}❌ API key required${NC}"
         exit 1
