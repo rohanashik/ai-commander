@@ -110,15 +110,12 @@ echo Configuring shell integration...
 
 set "PYTHON_EXE=%INSTALL_DIR%\venv\Scripts\python.exe"
 set "AI_SCRIPT=%INSTALL_DIR%\ai.py"
-set "MACRO_CMD=doskey ??=%PYTHON_EXE% %AI_SCRIPT% --execute $* $T doskey ai=%PYTHON_EXE% %AI_SCRIPT% --execute $*"
 
 :: Create a cmd init script
 set "CMD_INIT=%INSTALL_DIR%\cmd_init.bat"
-(
-    echo @echo off
-    echo doskey ??="%PYTHON_EXE%" "%AI_SCRIPT%" --execute $*
-    echo doskey ai="%PYTHON_EXE%" "%AI_SCRIPT%" --execute $*
-) > "%CMD_INIT%"
+echo @echo off> "%CMD_INIT%"
+echo doskey ??="!PYTHON_EXE!" "!AI_SCRIPT!" --execute $*>> "%CMD_INIT%"
+echo doskey ai="!PYTHON_EXE!" "!AI_SCRIPT!" --execute $*>> "%CMD_INIT%"
 
 :: Register via AutoRun so it loads on every cmd.exe session
 reg add "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d "\"%CMD_INIT%\"" /f >nul 2>&1
