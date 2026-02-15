@@ -101,8 +101,18 @@ def config_menu():
         print(f"\n  {GREEN}✓ API key updated successfully.{NC}\n")
 
     elif choice == '2':
-        print(f"\n  To uninstall, run:")
-        print(f"  {BLUE}curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.sh | bash{NC}\n")
+        try:
+            confirm = input(f"\n  {RED}Are you sure you want to uninstall AI Commander? (y/N):{NC} ").strip().lower()
+        except (KeyboardInterrupt, EOFError):
+            print("\nCancelled.")
+            sys.exit(0)
+
+        if confirm == 'y':
+            import subprocess
+            print()
+            subprocess.run(['bash', '-c', 'curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.sh | bash'])
+        else:
+            print(f"\n  Uninstall cancelled.")
 
     else:
         print("Cancelled.")
