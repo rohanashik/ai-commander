@@ -21,13 +21,6 @@ if [ ! -d "$INSTALL_DIR" ]; then
     exit 0
 fi
 
-read -p "Are you sure you want to uninstall AI Commander? (y/n) " -n 1 -r < /dev/tty
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Uninstall cancelled."
-    exit 0
-fi
-
 # Remove shell integration from rc files
 echo "Removing shell integration..."
 
