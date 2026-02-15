@@ -50,6 +50,5 @@ echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━
 echo -e "${GREEN}✅ AI Commander has been uninstalled.${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-echo "Please reload your shell or run:"
-echo -e "  ${BLUE}source ~/.zshrc${NC}  (or your shell's rc file)"
-echo ""
+echo "Reloading shell..."
+exec $SHELL
