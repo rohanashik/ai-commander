@@ -52,12 +52,73 @@ def get_context():
         'folders': folders  # folders in current directory
     }
 
+def config_menu():
+    """Interactive configuration menu"""
+    install_dir = os.path.dirname(os.path.abspath(__file__))
+    env_path = os.path.join(install_dir, '.env')
+
+    BLUE = '\033[0;34m'
+    GREEN = '\033[0;32m'
+    RED = '\033[0;31m'
+    NC = '\033[0m'
+
+    print(f"\n{BLUE}┌────────────────────────────────────┐{NC}")
+    print(f"{BLUE}│   🤖 AI Commander Settings        │{NC}")
+    print(f"{BLUE}└────────────────────────────────────┘{NC}\n")
+
+    print(f"  {BLUE}1.{NC} Update API Key")
+    print(f"  {BLUE}2.{NC} Uninstall")
+    print(f"  {BLUE}0.{NC} Cancel\n")
+
+    try:
+        choice = input(f"{BLUE}Choose an option:{NC} ").strip()
+    except (KeyboardInterrupt, EOFError):
+        print("\nCancelled.")
+        sys.exit(0)
+
+    if choice == '1':
+        # Show current key status
+        current_key = os.environ.get("GEMINI_API_KEY", "")
+        if current_key:
+            masked = current_key[:4] + '...' + current_key[-4:]
+            print(f"\n  Current key: {masked}")
+        else:
+            print(f"\n  {RED}No API key configured.{NC}")
+
+        try:
+            new_key = input(f"\n  Enter new Gemini API key: ").strip()
+        except (KeyboardInterrupt, EOFError):
+            print("\nCancelled.")
+            sys.exit(0)
+
+        if not new_key:
+            print(f"\n  {RED}No key entered. Cancelled.{NC}")
+            sys.exit(1)
+
+        with open(env_path, 'w') as f:
+            f.write(f"GEMINI_API_KEY={new_key}\n")
+
+        print(f"\n  {GREEN}✓ API key updated successfully.{NC}\n")
+
+    elif choice == '2':
+        print(f"\n  To uninstall, run:")
+        print(f"  {BLUE}curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.sh | bash{NC}\n")
+
+    else:
+        print("Cancelled.")
+
+    sys.exit(0)
+
 def main():
+    # Handle --config flag
+    if len(sys.argv) >= 2 and sys.argv[1] == '--config':
+        config_menu()
+
     # Check for Gemini API key
     if not os.environ.get("GEMINI_API_KEY"):
         print("echo 'Error: GEMINI_API_KEY environment variable not set'", file=sys.stderr)
         sys.exit(1)
-    
+
     # Get everything after '??'
     user_input = ' '.join(sys.argv[1:])
     

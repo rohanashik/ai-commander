@@ -94,11 +94,16 @@ SHELL_NAME=""
 if [ -n "$ZSH_VERSION" ] || [ -f "$HOME/.zshrc" ]; then
     SHELL_RC="$HOME/.zshrc"
     SHELL_NAME="zsh"
-    SHELL_FUNCTION='function ?? {
+    SHELL_FUNCTION='setopt nonomatch 2>/dev/null
+function ?? {
     cmd=$('$INSTALL_DIR'/venv/bin/python '$INSTALL_DIR'/ai.py "$@")
     print -z "$cmd"
 }
 function ai {
+    if [[ "$1" == "--config" ]]; then
+        '$INSTALL_DIR'/venv/bin/python '$INSTALL_DIR'/ai.py "$@"
+        return
+    fi
     cmd=$('$INSTALL_DIR'/venv/bin/python '$INSTALL_DIR'/ai.py "$@")
     print -z "$cmd"
 }'
@@ -111,6 +116,10 @@ elif [ -n "$BASH_VERSION" ] || [ -f "$HOME/.bashrc" ]; then
     READLINE_POINT=${#READLINE_LINE}
 }
 function ai {
+    if [[ "$1" == "--config" ]]; then
+        '$INSTALL_DIR'/venv/bin/python '$INSTALL_DIR'/ai.py "$@"
+        return
+    fi
     cmd=$('$INSTALL_DIR'/venv/bin/python '$INSTALL_DIR'/ai.py "$@")
     READLINE_LINE="$cmd"
     READLINE_POINT=${#READLINE_LINE}
@@ -124,6 +133,10 @@ elif [ -f "$HOME/.bash_profile" ]; then
     READLINE_POINT=${#READLINE_LINE}
 }
 function ai {
+    if [[ "$1" == "--config" ]]; then
+        '$INSTALL_DIR'/venv/bin/python '$INSTALL_DIR'/ai.py "$@"
+        return
+    fi
     cmd=$('$INSTALL_DIR'/venv/bin/python '$INSTALL_DIR'/ai.py "$@")
     READLINE_LINE="$cmd"
     READLINE_POINT=${#READLINE_LINE}

@@ -70,6 +70,14 @@ Simply type `??` followed by your natural language request:
 
 The command will appear in your terminal buffer. Press Enter to execute it, or edit it first if needed.
 
+## Configuration
+
+To open the settings menu (update API key, uninstall, etc.):
+
+```bash
+ai --config
+```
+
 ## Uninstall
 
 To completely remove AI Commander:
