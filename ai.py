@@ -66,6 +66,10 @@ def check_for_updates(silent=False):
 
 def show_loader(stop_event, shell=''):
     """Display an animated spinner while loading"""
+    # Skip spinner if stderr is not a terminal (e.g. piped/captured by PowerShell 2>&1)
+    if not sys.stderr.isatty():
+        stop_event.wait()
+        return
     spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
     idx = 0
     while not stop_event.is_set():
