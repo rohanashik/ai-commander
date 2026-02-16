@@ -78,11 +78,7 @@ def show_loader(stop_event, shell=''):
         sys.stderr.flush()
         idx += 1
         time.sleep(0.1)
-    # For PowerShell, add newline before clearing to prevent cursor issues
-    if shell == 'powershell':
-        sys.stderr.write('\r' + ' ' * 50 + '\r\n')
-    else:
-        sys.stderr.write('\r' + ' ' * 50 + '\r')
+    sys.stderr.write('\r' + ' ' * 50 + '\r')
     sys.stderr.flush()
 
 def get_shell():
