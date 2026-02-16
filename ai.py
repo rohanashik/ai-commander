@@ -280,7 +280,7 @@ def execute_with_confirm(command):
         sys.stderr.write(f"\n> {command}\n\n")
         sys.stderr.flush()
         try:
-            sys.stderr.write("Run this command? [Y/n] ")
+            sys.stderr.write("Run this command? (Y/n) ")
             sys.stderr.flush()
             choice = sys.stdin.readline().strip().lower()
         except (KeyboardInterrupt, EOFError):
