@@ -237,6 +237,39 @@ def main():
     loader_thread = threading.Thread(target=show_loader, args=(stop_loader,))
     loader_thread.start()
 
+    # Build shell-specific examples
+    if ctx['shell'] == 'cmd':
+        examples = """Examples for Windows CMD:
+    Input: list all files
+    Output: dir /a
+
+    Input: show current directory
+    Output: cd
+
+    Input: delete a file
+    Output: del filename.txt"""
+    elif ctx['shell'] == 'powershell':
+        examples = """Examples for PowerShell:
+    Input: list all files
+    Output: Get-ChildItem -Force
+
+    Input: show current directory
+    Output: Get-Location
+
+    Input: delete a file
+    Output: Remove-Item filename.txt"""
+    else:
+        # Unix-like shells (bash, zsh, sh, etc.)
+        examples = """Examples for Unix/Linux:
+    Input: list all files
+    Output: ls -la
+
+    Input: show disk usage
+    Output: df -h
+
+    Input: find files
+    Output: find . -name "*.txt" """
+
     prompt = f"""Convert this natural language request to a terminal command: {user_input}
 
     CONTEXT:
@@ -248,20 +281,19 @@ def main():
     - Folders in Directory: {', '.join(ctx['folders']) if ctx['folders'] else 'none'}
 
     CRITICAL RULES:
+    - YOU MUST generate a command that works ONLY in {ctx['shell'].upper()}
+    - DO NOT mix syntax from different shells (e.g., NO PowerShell cmdlets in cmd, NO Unix commands in Windows)
+    - If shell is 'cmd': use Windows CMD syntax ONLY (dir, copy, del, cd, etc.)
+    - If shell is 'powershell': use PowerShell cmdlets ONLY (Get-ChildItem, Copy-Item, Remove-Item, etc.)
+    - If shell is bash/zsh/sh: use Unix/Linux commands ONLY (ls, cp, rm, find, grep, etc.)
     - Output ONLY the raw command, nothing else
-    - Use correct syntax for {ctx['os']} and {ctx['shell']}
     - NO backticks, NO code blocks, NO markdown formatting
     - NO explanations, NO comments, NO extra text
     - NO quotes around the command
-    - NO shell prompts like $ or #
-    - The output must be directly executable
+    - NO shell prompts like $ or # or >
+    - The output must be directly executable in {ctx['shell']}
 
-    Examples:
-    Input: list all files
-    Output: ls -la
-
-    Input: show disk usage
-    Output: df -h"""
+    {examples}"""
 
     # print(f"# Prompt sent to LLM:\n{prompt}\n", file=sys.stderr)
     
@@ -273,7 +305,7 @@ def main():
                 "role": "user",
                 "content": prompt
             }],
-            max_tokens=300
+            max_tokens=900
         )
 
         # Extract command — take only the first line to avoid explanations
