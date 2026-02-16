@@ -14,6 +14,20 @@ load_dotenv()
 
 litellm.suppress_debug_info = True
 
+# Enable ANSI escape code support on Windows
+if sys.platform == 'win32':
+    try:
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        # Enable ENABLE_VIRTUAL_TERMINAL_PROCESSING for stdout and stderr
+        for handle_id in (-11, -12):  # STD_OUTPUT_HANDLE, STD_ERROR_HANDLE
+            handle = kernel32.GetStdHandle(handle_id)
+            mode = ctypes.c_ulong()
+            kernel32.GetConsoleMode(handle, ctypes.byref(mode))
+            kernel32.SetConsoleMode(handle, mode.value | 0x0004)
+    except Exception:
+        pass
+
 __version__ = "1.0.0"
 GITHUB_REPO = "rohanashik/ai-commander"
 
