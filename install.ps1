@@ -133,10 +133,8 @@ function global:ai {
         & "$PythonExe" "$AiScript" @args
         return
     }
-    Write-Host 'Thinking...' -NoNewline
-    `$cmd = & "$PythonExe" "$AiScript" @args 2>&1 | Out-String
+    `$cmd = & "$PythonExe" "$AiScript" @args | Out-String
     `$cmd = `$cmd.Trim()
-    Write-Host "`r           `r" -NoNewline
     if (`$cmd -and -not `$cmd.StartsWith('Error:')) {
         try {
             [Microsoft.PowerShell.PSConsoleReadLine]::Insert(`$cmd)
@@ -154,7 +152,12 @@ function global:?? { ai @args }
 if (Test-Path $PROFILE) {
     $profileContent = Get-Content $PROFILE -Raw -ErrorAction SilentlyContinue
     if ($profileContent -and $profileContent.Contains("AI Commander")) {
-        Write-Host "[OK] PowerShell profile integration already configured" -ForegroundColor Green
+        # Replace existing AI Commander block with updated version
+        $pattern = '(?s)\r?\n?# AI Commander - Natural language terminal commands.*?# AI Commander - END'
+        $profileContent = [regex]::Replace($profileContent, $pattern, '')
+        $profileContent = $profileContent.TrimEnd() + $PsFunctionBlock
+        [IO.File]::WriteAllText($PROFILE, $profileContent)
+        Write-Host "[OK] Updated PowerShell profile: $PROFILE" -ForegroundColor Green
     } else {
         # Append using .NET to avoid BOM/encoding issues with existing profile
         [IO.File]::AppendAllText($PROFILE, $PsFunctionBlock)

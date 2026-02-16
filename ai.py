@@ -23,8 +23,9 @@ if sys.platform == 'win32':
         for handle_id in (-11, -12):  # STD_OUTPUT_HANDLE, STD_ERROR_HANDLE
             handle = kernel32.GetStdHandle(handle_id)
             mode = ctypes.c_ulong()
-            kernel32.GetConsoleMode(handle, ctypes.byref(mode))
-            kernel32.SetConsoleMode(handle, mode.value | 0x0004)
+            # Only set mode on actual console handles (skip piped/redirected)
+            if kernel32.GetConsoleMode(handle, ctypes.byref(mode)):
+                kernel32.SetConsoleMode(handle, mode.value | 0x0004)
     except Exception:
         pass
 
@@ -66,8 +67,8 @@ def check_for_updates(silent=False):
 
 def show_loader(stop_event, shell=''):
     """Display an animated spinner while loading"""
-    # Skip spinner if stdout is not a terminal (e.g. output captured by PowerShell wrapper)
-    if not sys.stdout.isatty():
+    # Skip spinner if stderr is not a terminal (spinner writes to stderr)
+    if not sys.stderr.isatty():
         stop_event.wait()
         return
     spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
