@@ -1,7 +1,8 @@
 import sys
 import os
 
-from .constants import __version__, BLUE, GREEN, RED, NC
+from .constants import BLUE, GREEN, RED, NC
+from .version import __version__
 from .updater import check_for_updates
 
 
