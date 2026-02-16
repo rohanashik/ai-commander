@@ -237,7 +237,7 @@ def execute_with_confirm(command):
 
 def main():
     # Handle --config flag
-    if len(sys.argv) >= 2 and sys.argv[1] == '--config':
+    if '--config' in sys.argv:
         config_menu()
 
     # Handle --execute flag (Windows cmd mode: confirm then run)
