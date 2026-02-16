@@ -24,6 +24,13 @@ Convert natural language to terminal commands using AI.
 curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/install.sh | bash
 ```
 
+### Windows (PowerShell)
+
+Download and run the installer in PowerShell:
+```powershell
+iwr -useb https://raw.githubusercontent.com/rohanashik/ai-commander/main/install.ps1 | iex
+```
+
 ### Windows (cmd)
 
 Download and run the installer in Command Prompt:
@@ -58,6 +65,36 @@ function '??' {
 Then reload your shell:
 ```bash
 source ~/.zshrc
+```
+</details>
+
+<details>
+<summary>Windows (PowerShell)</summary>
+
+Add the following to your PowerShell profile (`$PROFILE`):
+
+```powershell
+# AI Commander - Natural language terminal commands
+function global:ai {
+    if ($args[0] -eq '--config') {
+        & "$env:APPDATA\ai-commander\venv\Scripts\python.exe" "$env:APPDATA\ai-commander\ai.py" @args
+        return
+    }
+    $cmd = & "$env:APPDATA\ai-commander\venv\Scripts\python.exe" "$env:APPDATA\ai-commander\ai.py" --execute @args
+    if ($cmd) {
+        try {
+            [Microsoft.PowerShell.PSConsoleReadLine]::Insert($cmd)
+        } catch {
+            Write-Host $cmd
+        }
+    }
+}
+function global:?? { ai @args }
+```
+
+Then reload your profile:
+```powershell
+. $PROFILE
 ```
 </details>
 
@@ -120,12 +157,17 @@ ai --config
 curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.sh | bash
 ```
 
+**Windows (PowerShell):**
+```powershell
+iwr -useb https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.bat | iex
+```
+
 **Windows (cmd):**
 ```cmd
 curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.bat -o uninstall.bat && uninstall.bat
 ```
 
-This removes the installation directory and cleans up shell integration (rc files on macOS/Linux, AutoRun registry on Windows).
+This removes the installation directory and cleans up shell integration (rc files on macOS/Linux, PowerShell profile/AutoRun registry on Windows).
 
 ## How It Works
 
@@ -143,7 +185,8 @@ Your API key should be stored as an environment variable, never hardcoded. The i
 
 **Command not found: ??**
 - macOS/Linux: Make sure you've reloaded your shell: `source ~/.zshrc`
-- Windows: Open a new cmd window after installation
+- Windows (PowerShell): Reload your profile: `. $PROFILE` or open a new PowerShell window
+- Windows (cmd): Open a new cmd window after installation
 
 **API Error**
 - Verify your `GEMINI_API_KEY` is set: `echo $GEMINI_API_KEY` (or `set GEMINI_API_KEY` on Windows)
