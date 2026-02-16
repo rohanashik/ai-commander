@@ -8,7 +8,6 @@ litellm.suppress_debug_info = True
 
 IS_WINDOWS = sys.platform == 'win32'
 
-__version__ = "1.0.0"
 GITHUB_REPO = "rohanashik/ai-commander"
 
 # ANSI color constants

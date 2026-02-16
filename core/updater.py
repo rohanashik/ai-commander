@@ -4,7 +4,8 @@ import urllib.request
 import json
 from packaging import version
 
-from .constants import __version__, GITHUB_REPO, YELLOW, GREEN, NC
+from .version import __version__
+from .constants import GITHUB_REPO, YELLOW, GREEN, NC
 
 
 def check_for_updates(silent=False):

@@ -2,6 +2,7 @@ import sys
 import os
 import litellm
 
+from .version import __version__
 from .constants import IS_WINDOWS, LLM_ERROR_MESSAGES
 from .config import config_menu
 from .context import get_context
