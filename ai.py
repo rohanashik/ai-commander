@@ -238,7 +238,7 @@ def config_menu():
                 subprocess.Popen(
                     cleanup_cmd,
                     shell=True,
-                    creationflags=subprocess.CREATE_NEW_CONSOLE | subprocess.DETACHED_PROCESS,
+                    creationflags=subprocess.CREATE_NEW_CONSOLE,
                 )
 
                 print(f"\n{GREEN}AI Commander has been uninstalled.{NC}")
