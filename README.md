@@ -160,7 +160,12 @@ curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninst
 
 **Windows (PowerShell):**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.bat | iex
+powershell -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.ps1 | iex"
+```
+
+Or download and run locally:
+```powershell
+powershell -ExecutionPolicy Bypass -File uninstall.ps1
 ```
 
 **Windows (cmd):**
@@ -168,7 +173,7 @@ iwr -useb https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninsta
 curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.bat -o uninstall.bat && uninstall.bat
 ```
 
-This removes the installation directory and cleans up shell integration (rc files on macOS/Linux, PowerShell profile/AutoRun registry on Windows).
+This removes the installation directory and cleans up shell integration (rc files on macOS/Linux, PowerShell profile/AutoRun registry on Windows). The PowerShell uninstaller includes robust error handling for locked files and read-only attributes in the venv folder.
 
 ## How It Works
 
