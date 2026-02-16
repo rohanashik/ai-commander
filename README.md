@@ -26,9 +26,9 @@ curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/instal
 
 ### Windows (PowerShell)
 
-Download and run the installer in PowerShell:
+Download and run the installer in PowerShell (as Administrator or regular user):
 ```powershell
-iwr -useb https://raw.githubusercontent.com/rohanashik/ai-commander/main/install.ps1 | iex
+powershell -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/rohanashik/ai-commander/main/install.ps1 | iex"
 ```
 
 ### Windows (cmd)
@@ -195,3 +195,11 @@ Your API key should be stored as an environment variable, never hardcoded. The i
 **Windows: `??` or `ai` not recognized**
 - Ensure the AutoRun registry key is set: `reg query "HKCU\Software\Microsoft\Command Processor" /v AutoRun`
 - Open a new cmd window (macros don't apply to already-open sessions)
+
+**Windows PowerShell: "cannot be loaded because running scripts is disabled on this system"**
+
+This occurs when PowerShell's execution policy blocks the profile script. Fix it by running this command in PowerShell as Administrator:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+Then open a new PowerShell window. This allows locally-created scripts to run while still requiring remote scripts to be signed.
