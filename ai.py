@@ -58,14 +58,21 @@ def show_loader(stop_event, shell=''):
     if not sys.stderr.isatty():
         stop_event.wait()
         return
-    spinner = ['-', '\\', '|', '/'] if IS_WINDOWS else ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+    if IS_WINDOWS:
+        # Windows/PowerShell: \r-based animation corrupts the prompt line,
+        # so just print a static message and clear it when done.
+        sys.stderr.write('Thinking...\n')
+        sys.stderr.flush()
+        stop_event.wait()
+        return
+    spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
     idx = 0
     while not stop_event.is_set():
         sys.stderr.write(f'\r{spinner[idx % len(spinner)]} Thinking...')
         sys.stderr.flush()
         idx += 1
         time.sleep(0.1)
-    sys.stderr.write('\r' + ' ' * 50 + '\n')
+    sys.stderr.write('\r' + ' ' * 50 + '\r')
     sys.stderr.flush()
 
 def get_shell():
