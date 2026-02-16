@@ -274,18 +274,22 @@ def execute_with_confirm(command):
         NC = ''
 
     if IS_WINDOWS:
-        # Simple confirm-and-run for Windows (readline/prefill is unreliable
-        # across PowerShell, CMD, and Windows Terminal).
-        print(f"\n> {command}\n")
+        # Windows/PowerShell: stdout is captured by the pipeline and mangled,
+        # so write all interactive output to stderr which goes straight to
+        # the console.
+        sys.stderr.write(f"\n> {command}\n\n")
+        sys.stderr.flush()
         try:
-            choice = input("Run this command? [Y/n] ").strip().lower()
+            sys.stderr.write("Run this command? [Y/n] ")
+            sys.stderr.flush()
+            choice = sys.stdin.readline().strip().lower()
         except (KeyboardInterrupt, EOFError):
-            print("\nCancelled.")
+            sys.stderr.write("\nCancelled.\n")
             sys.exit(0)
         if choice in ('', 'y', 'yes'):
             sp.run(command, shell=True)
         else:
-            print("Cancelled.")
+            sys.stderr.write("Cancelled.\n")
     else:
         # Unix/macOS: editable pre-filled input via readline
         try:
@@ -435,6 +439,10 @@ def main():
         # Output the command
         if execute_mode:
             execute_with_confirm(command)
+        elif IS_WINDOWS:
+            # Write to stderr on Windows so PowerShell doesn't capture it
+            sys.stderr.write(command + '\n')
+            sys.stderr.flush()
         else:
             print(command)
     except litellm.RateLimitError:
