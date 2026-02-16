@@ -133,14 +133,18 @@ function global:ai {
         & "$PythonExe" "$AiScript" @args
         return
     }
-    `$cmd = & "$PythonExe" "$AiScript" @args
-    `$cmd = if (`$cmd) { (`$cmd | Out-String).Trim() } else { '' }
+    Write-Host 'Thinking...' -NoNewline
+    `$cmd = & "$PythonExe" "$AiScript" @args 2>&1 | Out-String
+    `$cmd = `$cmd.Trim()
+    Write-Host "`r           `r" -NoNewline
     if (`$cmd -and -not `$cmd.StartsWith('Error:')) {
         try {
             [Microsoft.PowerShell.PSConsoleReadLine]::Insert(`$cmd)
         } catch {
             Write-Host `$cmd
         }
+    } elseif (`$cmd) {
+        Write-Host `$cmd
     }
 }
 function global:?? { ai @args }
