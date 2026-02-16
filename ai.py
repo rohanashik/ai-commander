@@ -191,12 +191,59 @@ def config_menu():
             import subprocess
             print()
             if os.name == 'nt':
-                # Windows: run the batch uninstaller
-                uninstall_bat = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uninstall.bat')
-                if os.path.exists(uninstall_bat):
-                    subprocess.run([uninstall_bat])
-                else:
-                    print("Uninstall script not found. Please delete the installation folder manually.")
+                # Windows: perform cleanup then spawn a detached process to
+                # delete the install directory after Python exits (the venv's
+                # .pyd files and python.exe are locked while this process runs).
+                install_dir = os.path.join(os.environ.get('APPDATA', ''), 'ai-commander')
+
+                print(f"{RED}  AI Commander - UNINSTALLER{NC}")
+                print(f"{BLUE}  ================================={NC}")
+                print()
+
+                # Remove CMD AutoRun registry entry
+                print("Removing shell integration...")
+                try:
+                    import winreg
+                    key_path = r"Software\Microsoft\Command Processor"
+                    try:
+                        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_READ | winreg.KEY_WRITE)
+                        try:
+                            val, _ = winreg.QueryValueEx(key, "AutoRun")
+                            if val and "ai-commander" in val.lower():
+                                winreg.DeleteValue(key, "AutoRun")
+                                print(f"{GREEN}Removed cmd AutoRun registry entry{NC}")
+                        except FileNotFoundError:
+                            pass
+                        winreg.CloseKey(key)
+                    except FileNotFoundError:
+                        pass
+                except Exception:
+                    pass
+
+                # Spawn a detached cmd that waits for this Python process to
+                # exit, then removes the install directory.
+                pid = os.getpid()
+                cleanup_cmd = (
+                    f'cmd /c "title AI Commander Cleanup'
+                    f' & echo Waiting for process to exit...'
+                    f' & :wait'
+                    f' & tasklist /fi "PID eq {pid}" 2>nul | find "{pid}" >nul'
+                    f' && (timeout /t 1 /nobreak >nul & goto wait)'
+                    f' & rmdir /s /q "{install_dir}"'
+                    f' & echo.'
+                    f' & echo AI Commander has been uninstalled.'
+                    f' & echo Open a new terminal for changes to take effect.'
+                    f' & timeout /t 5"'
+                )
+                subprocess.Popen(
+                    cleanup_cmd,
+                    shell=True,
+                    creationflags=subprocess.CREATE_NEW_CONSOLE | subprocess.DETACHED_PROCESS,
+                )
+
+                print(f"\n{GREEN}AI Commander has been uninstalled.{NC}")
+                print("A cleanup window will remove remaining files after this process exits.")
+                print("Open a new terminal for changes to take effect.")
             else:
                 subprocess.run(['bash', '-c', 'curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/uninstall.sh | bash'])
         else:
