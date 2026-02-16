@@ -80,8 +80,9 @@ function global:ai {
         & "$env:APPDATA\ai-commander\venv\Scripts\python.exe" "$env:APPDATA\ai-commander\ai.py" @args
         return
     }
-    $cmd = & "$env:APPDATA\ai-commander\venv\Scripts\python.exe" "$env:APPDATA\ai-commander\ai.py" --execute @args
-    if ($cmd) {
+    $cmd = & "$env:APPDATA\ai-commander\venv\Scripts\python.exe" "$env:APPDATA\ai-commander\ai.py" @args 2>&1 | Where-Object { $_ -is [string] -or $_.GetType().Name -eq 'ErrorRecord' } | Out-String
+    $cmd = $cmd.Trim()
+    if ($cmd -and -not $cmd.StartsWith('Error:')) {
         try {
             [Microsoft.PowerShell.PSConsoleReadLine]::Insert($cmd)
         } catch {

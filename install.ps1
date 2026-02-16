@@ -133,8 +133,9 @@ function global:ai {
         & "$PythonExe" "$AiScript" @args
         return
     }
-    `$cmd = & "$PythonExe" "$AiScript" --execute @args
-    if (`$cmd) {
+    `$cmd = & "$PythonExe" "$AiScript" @args 2>&1 | Where-Object { `$_ -is [string] -or `$_.GetType().Name -eq 'ErrorRecord' } | Out-String
+    `$cmd = `$cmd.Trim()
+    if (`$cmd -and -not `$cmd.StartsWith('Error:')) {
         try {
             [Microsoft.PowerShell.PSConsoleReadLine]::Insert(`$cmd)
         } catch {

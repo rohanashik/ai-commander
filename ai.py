@@ -50,7 +50,7 @@ def check_for_updates(silent=False):
             print("⚠ Could not check for updates. Please check your internet connection.\n")
     return False
 
-def show_loader(stop_event):
+def show_loader(stop_event, shell=''):
     """Display an animated spinner while loading"""
     spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
     idx = 0
@@ -59,7 +59,11 @@ def show_loader(stop_event):
         sys.stderr.flush()
         idx += 1
         time.sleep(0.1)
-    sys.stderr.write('\r' + ' ' * 50 + '\r')  # Clear the line
+    # For PowerShell, add newline before clearing to prevent cursor issues
+    if shell == 'powershell':
+        sys.stderr.write('\r' + ' ' * 50 + '\r\n')
+    else:
+        sys.stderr.write('\r' + ' ' * 50 + '\r')
     sys.stderr.flush()
 
 def get_shell():
@@ -234,7 +238,7 @@ def main():
     
     # Start loader animation in separate thread
     stop_loader = threading.Event()
-    loader_thread = threading.Thread(target=show_loader, args=(stop_loader,))
+    loader_thread = threading.Thread(target=show_loader, args=(stop_loader, ctx['shell']))
     loader_thread.start()
 
     # Build shell-specific examples
