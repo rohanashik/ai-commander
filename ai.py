@@ -14,20 +14,7 @@ load_dotenv()
 
 litellm.suppress_debug_info = True
 
-# Enable ANSI escape code support on Windows
-if sys.platform == 'win32':
-    try:
-        import ctypes
-        kernel32 = ctypes.windll.kernel32
-        # Enable ENABLE_VIRTUAL_TERMINAL_PROCESSING for stdout and stderr
-        for handle_id in (-11, -12):  # STD_OUTPUT_HANDLE, STD_ERROR_HANDLE
-            handle = kernel32.GetStdHandle(handle_id)
-            mode = ctypes.c_ulong()
-            # Only set mode on actual console handles (skip piped/redirected)
-            if kernel32.GetConsoleMode(handle, ctypes.byref(mode)):
-                kernel32.SetConsoleMode(handle, mode.value | 0x0004)
-    except Exception:
-        pass
+IS_WINDOWS = sys.platform == 'win32'
 
 __version__ = "1.0.0"
 GITHUB_REPO = "rohanashik/ai-commander"
@@ -71,7 +58,7 @@ def show_loader(stop_event, shell=''):
     if not sys.stderr.isatty():
         stop_event.wait()
         return
-    spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+    spinner = ['-', '\\', '|', '/'] if IS_WINDOWS else ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
     idx = 0
     while not stop_event.is_set():
         sys.stderr.write(f'\r{spinner[idx % len(spinner)]} Thinking...')
@@ -221,19 +208,27 @@ def config_menu():
     sys.exit(0)
 
 def execute_with_confirm(command):
-    """Print command and ask for confirmation before executing (used on Windows cmd)"""
+    """Print command and ask for confirmation before executing"""
     import subprocess as sp
-    BLUE = '\033[0;34m'
-    GREEN = '\033[0;32m'
-    RED = '\033[0;31m'
-    NC = '\033[0m'
 
-    print(f"\n{BLUE}>{NC} {command}\n")
-    try:
-        choice = input(f"Run this command? ({GREEN}Y{NC}/{RED}n{NC}): ").strip()
-    except (KeyboardInterrupt, EOFError):
-        print("\nCancelled.")
-        sys.exit(0)
+    if IS_WINDOWS:
+        print(f"\n> {command}\n")
+        try:
+            choice = input("Run this command? (Y/n): ").strip()
+        except (KeyboardInterrupt, EOFError):
+            print("\nCancelled.")
+            sys.exit(0)
+    else:
+        BLUE = '\033[0;34m'
+        GREEN = '\033[0;32m'
+        RED = '\033[0;31m'
+        NC = '\033[0m'
+        print(f"\n{BLUE}>{NC} {command}\n")
+        try:
+            choice = input(f"Run this command? ({GREEN}Y{NC}/{RED}n{NC}): ").strip()
+        except (KeyboardInterrupt, EOFError):
+            print("\nCancelled.")
+            sys.exit(0)
 
     if choice.lower() in ('', 'y', 'yes'):
         sp.run(command, shell=True)
