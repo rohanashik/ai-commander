@@ -196,12 +196,12 @@ def execute_with_confirm(command):
 
     print(f"\n{BLUE}>{NC} {command}\n")
     try:
-        choice = input(f"Run this command? ({GREEN}Y{NC}/{RED}n{NC}): ").strip().lower()
+        choice = input(f"Run this command? ({GREEN}Y{NC}/{RED}n{NC}): ").strip()
     except (KeyboardInterrupt, EOFError):
         print("\nCancelled.")
         sys.exit(0)
 
-    if choice in ('', 'y', 'yes'):
+    if choice.lower() in ('', 'y', 'yes'):
         sp.run(command, shell=True)
     else:
         print("Cancelled.")
