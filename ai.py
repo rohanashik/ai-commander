@@ -65,7 +65,7 @@ def show_loader(stop_event, shell=''):
         sys.stderr.flush()
         idx += 1
         time.sleep(0.1)
-    sys.stderr.write('\r' + ' ' * 50 + '\r')
+    sys.stderr.write('\r' + ' ' * 50 + '\n')
     sys.stderr.flush()
 
 def get_shell():
@@ -279,7 +279,7 @@ def execute_with_confirm(command):
             BLUE = ''
             GREEN = ''
             NC = ''
-        print(f"\n{GREEN}Edit command or press Enter to run (Ctrl+C to cancel):{NC}")
+        print(f"{GREEN}Edit command or press Enter to run (Ctrl+C to cancel):{NC}")
         edited_command = prefill_input(f"{BLUE}>{NC} ", command).strip()
         if not edited_command:
             edited_command = command
@@ -288,7 +288,7 @@ def execute_with_confirm(command):
         sys.exit(0)
     except ImportError:
         # Fallback: show command and let user retype or accept
-        print(f"\n> {command}\n")
+        print(f"> {command}\n")
         print("Edit command or press Enter to run (Ctrl+C to cancel):")
         try:
             edited_command = input("> ").strip()
