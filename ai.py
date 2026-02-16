@@ -258,47 +258,61 @@ def execute_with_confirm(command):
     """Print command and ask for confirmation before executing"""
     import subprocess as sp
 
-    # Try readline for editable pre-filled input (works on Unix/macOS natively,
-    # and on Windows if pyreadline3 is installed: pip install pyreadline3)
-    try:
-        import readline
-        def prefill_input(prompt, text):
-            def hook():
-                readline.insert_text(text)
-                readline.redisplay()
-            readline.set_pre_input_hook(hook)
-            try:
-                return input(prompt)
-            finally:
-                readline.set_pre_input_hook()
+    BLUE = '\033[0;34m'
+    GREEN = '\033[0;32m'
+    NC = '\033[0m'
+    if IS_WINDOWS:
+        BLUE = ''
+        GREEN = ''
+        NC = ''
 
-        BLUE = '\033[0;34m'
-        GREEN = '\033[0;32m'
-        NC = '\033[0m'
-        if IS_WINDOWS:
-            BLUE = ''
-            GREEN = ''
-            NC = ''
-        print(f"{GREEN}Edit command or press Enter to run (Ctrl+C to cancel):{NC}")
-        edited_command = prefill_input(f"{BLUE}>{NC} ", command).strip()
-        if not edited_command:
-            edited_command = command
-    except (KeyboardInterrupt, EOFError):
-        print("\nCancelled.")
-        sys.exit(0)
-    except ImportError:
-        # Fallback: show command and let user retype or accept
-        print(f"> {command}\n")
-        print("Edit command or press Enter to run (Ctrl+C to cancel):")
+    if IS_WINDOWS:
+        # Simple confirm-and-run for Windows (readline/prefill is unreliable
+        # across PowerShell, CMD, and Windows Terminal).
+        print(f"\n> {command}\n")
         try:
-            edited_command = input("> ").strip()
+            choice = input("Run this command? [Y/n] ").strip().lower()
+        except (KeyboardInterrupt, EOFError):
+            print("\nCancelled.")
+            sys.exit(0)
+        if choice in ('', 'y', 'yes'):
+            sp.run(command, shell=True)
+        else:
+            print("Cancelled.")
+    else:
+        # Unix/macOS: editable pre-filled input via readline
+        try:
+            import readline
+            def prefill_input(prompt, text):
+                def hook():
+                    readline.insert_text(text)
+                    readline.redisplay()
+                readline.set_pre_input_hook(hook)
+                try:
+                    return input(prompt)
+                finally:
+                    readline.set_pre_input_hook()
+
+            print(f"{GREEN}Edit command or press Enter to run (Ctrl+C to cancel):{NC}")
+            edited_command = prefill_input(f"{BLUE}>{NC} ", command).strip()
             if not edited_command:
                 edited_command = command
         except (KeyboardInterrupt, EOFError):
             print("\nCancelled.")
             sys.exit(0)
+        except ImportError:
+            # Fallback: show command and let user retype or accept
+            print(f"> {command}\n")
+            print("Edit command or press Enter to run (Ctrl+C to cancel):")
+            try:
+                edited_command = input("> ").strip()
+                if not edited_command:
+                    edited_command = command
+            except (KeyboardInterrupt, EOFError):
+                print("\nCancelled.")
+                sys.exit(0)
 
-    sp.run(edited_command, shell=True)
+        sp.run(edited_command, shell=True)
 
 def main():
     # Handle --config flag
