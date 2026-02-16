@@ -26,14 +26,14 @@ curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/instal
 
 ### Windows (PowerShell)
 
-Download and run the installer in PowerShell (as Administrator or regular user):
+Download and run the installer in PowerShell **as Administrator**:
 ```powershell
 powershell -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/rohanashik/ai-commander/main/install.ps1 | iex"
 ```
 
 ### Windows (cmd)
 
-Download and run the installer in Command Prompt:
+Download and run the installer in Command Prompt **as Administrator**:
 ```cmd
 curl -fsSL https://raw.githubusercontent.com/rohanashik/ai-commander/main/install.bat -o install.bat && install.bat
 ```

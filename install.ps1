@@ -129,7 +129,18 @@ $PsFunctionBlock = @"
 
 # AI Commander - Natural language terminal commands
 function global:ai {
-    & "$PythonExe" "$AiScript" --execute @args
+    if (`$args[0] -eq "--config") {
+        & "$PythonExe" "$AiScript" @args
+        return
+    }
+    `$cmd = & "$PythonExe" "$AiScript" @args
+    if (`$cmd) {
+        try {
+            [Microsoft.PowerShell.PSConsoleReadLine]::Insert(`$cmd)
+        } catch {
+            Write-Host `$cmd
+        }
+    }
 }
 function global:?? { ai @args }
 # AI Commander - END
