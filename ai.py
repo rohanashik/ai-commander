@@ -69,9 +69,24 @@ def show_loader(stop_event, shell=''):
 def get_shell():
     """Detect the current shell, cross-platform"""
     if os.name == 'nt':
-        # Windows: check if running in PowerShell or cmd
-        if os.environ.get('PSModulePath'):
-            return 'powershell'
+        # Windows: Detect shell by checking parent process
+        try:
+            import psutil
+            parent = psutil.Process(os.getppid())
+            parent_name = parent.name().lower()
+            
+            if 'powershell' in parent_name or 'pwsh' in parent_name:
+                return 'powershell'
+            elif 'cmd' in parent_name:
+                return 'cmd'
+        except (ImportError, Exception):
+            # Fallback: check environment variables
+            # PSModulePath exists in both, but PowerShell adds specific paths
+            psmodpath = os.environ.get('PSModulePath', '')
+            if psmodpath and ('WindowsPowerShell' in psmodpath or 'PowerShell' in psmodpath):
+                return 'powershell'
+        
+        # Default to cmd if uncertain
         return 'cmd'
     return os.environ.get('SHELL', 'unknown').split('/')[-1]
 
