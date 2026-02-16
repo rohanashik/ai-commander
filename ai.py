@@ -260,27 +260,53 @@ def execute_with_confirm(command):
 
     if IS_WINDOWS:
         print(f"\n> {command}\n")
+        print("Edit command or press Enter to run (Ctrl+C to cancel):")
         try:
-            choice = input("Run this command? (Y/n): ").strip()
+            edited_command = input("> ").strip()
+            if not edited_command:
+                edited_command = command
         except (KeyboardInterrupt, EOFError):
             print("\nCancelled.")
             sys.exit(0)
     else:
-        BLUE = '\033[0;34m'
-        GREEN = '\033[0;32m'
-        RED = '\033[0;31m'
-        NC = '\033[0m'
-        print(f"\n{BLUE}>{NC} {command}\n")
+        # Unix/macOS: use readline for editable pre-filled input
         try:
-            choice = input(f"Run this command? ({GREEN}Y{NC}/{RED}n{NC}): ").strip()
+            import readline
+            def prefill_input(prompt, text):
+                def hook():
+                    readline.insert_text(text)
+                    readline.redisplay()
+                readline.set_pre_input_hook(hook)
+                try:
+                    return input(prompt)
+                finally:
+                    readline.set_pre_input_hook()
+            
+            BLUE = '\033[0;34m'
+            GREEN = '\033[0;32m'
+            NC = '\033[0m'
+            print(f"\n{GREEN}Edit command or press Enter to run (Ctrl+C to cancel):{NC}")
+            edited_command = prefill_input(f"{BLUE}>{NC} ", command).strip()
+            if not edited_command:
+                edited_command = command
         except (KeyboardInterrupt, EOFError):
             print("\nCancelled.")
             sys.exit(0)
+        except ImportError:
+            # Fallback if readline not available
+            print(f"\n{BLUE}>{NC} {command}\n")
+            try:
+                choice = input(f"Run this command? ({GREEN}Y{NC}/n): ").strip()
+                if choice.lower() in ('', 'y', 'yes'):
+                    edited_command = command
+                else:
+                    print("Cancelled.")
+                    sys.exit(0)
+            except (KeyboardInterrupt, EOFError):
+                print("\nCancelled.")
+                sys.exit(0)
 
-    if choice.lower() in ('', 'y', 'yes'):
-        sp.run(command, shell=True)
-    else:
-        print("Cancelled.")
+    sp.run(edited_command, shell=True)
 
 def main():
     # Handle --config flag
